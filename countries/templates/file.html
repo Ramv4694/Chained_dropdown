@@ -1,0 +1,136 @@
+<html>
+<head>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+
+</head>
+
+<body>
+
+<form class="contry-form" action ="#"  method="POST"  id="form">
+
+  {% csrf_token %}
+  <select name = "dropdown" id = "dropdown">
+    {% for country in countries %}
+      <option value ={{ country.pk }} > {{ country.name }}</option>
+
+
+    {% endfor %}
+  </select>
+
+  <select name = "dropdown1" id = "dropdown1">
+
+
+  </select>
+
+  <select name = "dropdown2" id = "dropdown2">
+
+
+  </select>
+
+  <div class="container" style="width:600px;">
+  <h2 align="center">Autocomplete Textbox using Bootstrap Typeahead with Ajax Django</h2>
+  <br /><br />
+  <label>Search Country</label>
+  <input type="text" name="country" id="country" class="form-control input-lg" autocomplete="off" placeholder="Type Country Name" />
+  <div id="countryList"></div>
+ </div>
+
+
+</form>
+</body>
+
+
+
+
+<script type="text/javascript">
+   $(document).ready(function(){
+
+
+
+     $( "#dropdown" ).change(function() {
+        var value = $(this).val()
+        var token = '{{csrf_token}}';
+        $.ajax({
+                 headers: { "X-CSRFToken": token },
+                  type: "POST",
+                  url: "{% url 'countries:Ajaxcall' %}",
+
+                  data: {
+                    'value': JSON.stringify(value)
+                  },
+
+
+                  success: function(data){
+                    dataType : 'html'
+                    console.log("success test")
+                    console.log(data)
+
+                    $('#dropdown1').empty().append(data);
+                  }
+              });
+
+       });
+
+
+       $( "#dropdown1" ).change(function() {
+          var value = $(this).val()
+          var token = '{{csrf_token}}';
+          $.ajax({
+                   headers: { "X-CSRFToken": token },
+                    type: "POST",
+                    url: "{% url 'countries:Ajaxcall_district' %}",
+
+                    data: {
+                      'value': JSON.stringify(value)
+                    },
+
+
+                    success: function(response2){
+                      dataType : 'html'
+                      console.log("success test")
+                      console.log(response2)
+
+                      $('#dropdown2').empty().append(response2);
+
+                    }
+                });
+
+         });
+
+  $('#country').keyup(function(query){
+    var token = '{{csrf_token}}';
+    var query = $(this).val()
+
+
+  $.ajax({
+  headers: { "X-CSRFToken": token },
+  type: "POST",
+   url: "{% url 'countries:Ajaxcallcountry' %}",
+
+   data: {
+     'value': JSON.stringify(query)
+   },
+   success:function(data)
+    {
+      
+      $('#countryList').fadeIn();
+      $('#countryList').html(data);
+     }
+
+  })
+
+});
+$(document).on('click', 'li', function(){
+         $('#country').val($(this).text());
+         $('#countryList').fadeOut();
+    });
+
+
+
+})
+</script>
+</html>
